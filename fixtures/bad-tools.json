@@ -1,0 +1,111 @@
+{
+  "tools": [
+    {
+      "name": "get",
+      "description": "Gets data.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": ["id"]
+      }
+    },
+    {
+      "name": "handle_stuff",
+      "description": "Handles stuff and various things for the agent.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "input": {
+            "type": "string",
+            "description": ""
+          },
+          "mode": {
+            "type": "string",
+            "description": "mode"
+          }
+        },
+        "required": ["input"]
+      }
+    },
+    {
+      "name": "process_data",
+      "description": "Processes data from the user.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "type": "object"
+          }
+        },
+        "required": ["payload", "format"]
+      }
+    },
+    {
+      "name": "manage_data",
+      "description": "Manages data and processes input for general-purpose tasks.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "string",
+            "description": "Required data blob to manage."
+          }
+        }
+      }
+    },
+    {
+      "name": "do_things",
+      "description": "Does things.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "search_users",
+      "description": "Search users in the directory by name or email.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Name or email fragment to search."
+          }
+        },
+        "required": ["query"]
+      }
+    },
+    {
+      "name": "find_users",
+      "description": "Search users in the directory by name or email query.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Name or email fragment to find."
+          }
+        },
+        "required": ["query"]
+      }
+    },
+    {
+      "name": "fetch_info",
+      "description": "Fetch info about the system.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "q"
+          }
+        },
+        "required": ["query"]
+      }
+    }
+  ]
+}

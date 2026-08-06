@@ -1,0 +1,40 @@
+{
+  "name": "mcplint",
+  "version": "1.0.0",
+  "description": "Static linter for MCP tool manifests — catch vague verbs, missing when-to-use guidance, overlapping tools, and weak schemas.",
+  "type": "module",
+  "bin": {
+    "mcplint": "./bin/mcplint.js"
+  },
+  "files": [
+    "dist",
+    "bin",
+    "fixtures",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node bin/mcplint.js",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "lint",
+    "tools",
+    "cli",
+    "agent"
+  ],
+  "author": "Piyatat",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "typescript": "^5.7.3"
+  }
+}

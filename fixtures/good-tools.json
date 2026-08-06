@@ -1,0 +1,75 @@
+{
+  "tools": [
+    {
+      "name": "list_pull_requests",
+      "description": "Enumerate open PRs in a GitHub repository (titles, numbers, authors). Use when you need a catalog of pull requests. Do not use for reading patch contents — call get_pull_request_diff for that.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "owner": {
+            "type": "string",
+            "description": "GitHub org or user that owns the repository (e.g. \"vercel\")."
+          },
+          "repo": {
+            "type": "string",
+            "description": "Repository name without the owner prefix (e.g. \"next.js\")."
+          },
+          "state": {
+            "type": "string",
+            "description": "Optional filter: open, closed, or all. Defaults to open."
+          }
+        },
+        "required": ["owner", "repo"]
+      }
+    },
+    {
+      "name": "get_pull_request_diff",
+      "description": "Return the unified patch/diff body for one pull request by number. Use when reviewing or summarizing code changes in a known PR. Prefer list_pull_requests first if you only have a title and still need the number.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "owner": {
+            "type": "string",
+            "description": "GitHub org or user that owns the repository."
+          },
+          "repo": {
+            "type": "string",
+            "description": "Repository name without the owner prefix."
+          },
+          "number": {
+            "type": "integer",
+            "description": "Pull request number (positive integer from the PR URL or list)."
+          }
+        },
+        "required": ["owner", "repo", "number"]
+      }
+    },
+    {
+      "name": "create_calendar_event",
+      "description": "Create a calendar event on the user's primary calendar. Use when scheduling a meeting with a known title, start, and end time. Do not use for listing availability — prefer find_free_slots.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Short event title shown on the calendar."
+          },
+          "start": {
+            "type": "string",
+            "description": "ISO-8601 start datetime including timezone offset."
+          },
+          "end": {
+            "type": "string",
+            "description": "ISO-8601 end datetime including timezone offset."
+          },
+          "attendees": {
+            "type": "array",
+            "description": "Optional list of attendee email addresses.",
+            "items": { "type": "string" }
+          }
+        },
+        "required": ["title", "start", "end"]
+      }
+    }
+  ]
+}
