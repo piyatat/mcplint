@@ -1,3 +1,4 @@
+import { checkAnnotations } from './rules/annotations.js'
 import { checkOverlap } from './rules/overlap.js'
 import { checkSchema } from './rules/schema.js'
 import { checkVagueVerbs } from './rules/vague-verbs.js'
@@ -25,6 +26,7 @@ export function lintTools(
     ...checkWhenToUse(tools, path),
     ...checkOverlap(tools, path, options.overlapThreshold),
     ...checkSchema(tools, path),
+    ...checkAnnotations(tools, path),
   ]
   findings.sort(compareFindings)
   return findings

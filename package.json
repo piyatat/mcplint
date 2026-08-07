@@ -1,7 +1,7 @@
 {
   "name": "mcplint",
   "version": "1.0.0",
-  "description": "Static linter for MCP tool manifests — catch vague verbs, missing when-to-use guidance, overlapping tools, and weak schemas.",
+  "description": "Static linter for MCP tool manifests — catch vague verbs, missing when-to-use guidance, overlapping tools, weak schemas, and annotation issues.",
   "type": "module",
   "bin": {
     "mcplint": "./bin/mcplint.js"

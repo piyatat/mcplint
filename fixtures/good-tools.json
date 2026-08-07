@@ -3,6 +3,11 @@
     {
       "name": "list_pull_requests",
       "description": "Enumerate open PRs in a GitHub repository (titles, numbers, authors). Use when you need a catalog of pull requests. Do not use for reading patch contents — call get_pull_request_diff for that.",
+      "annotations": {
+        "title": "List Pull Requests",
+        "readOnlyHint": true,
+        "openWorldHint": true
+      },
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -25,6 +30,11 @@
     {
       "name": "get_pull_request_diff",
       "description": "Return the unified patch/diff body for one pull request by number. Use when reviewing or summarizing code changes in a known PR. Prefer list_pull_requests first if you only have a title and still need the number.",
+      "annotations": {
+        "title": "Get Pull Request Diff",
+        "readOnlyHint": true,
+        "openWorldHint": true
+      },
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -47,6 +57,12 @@
     {
       "name": "create_calendar_event",
       "description": "Create a calendar event on the user's primary calendar. Use when scheduling a meeting with a known title, start, and end time. Do not use for listing availability — prefer find_free_slots.",
+      "annotations": {
+        "title": "Create Calendar Event",
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
       "inputSchema": {
         "type": "object",
         "properties": {

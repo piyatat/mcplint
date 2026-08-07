@@ -93,6 +93,7 @@ Rules:
   when-to-use   Missing usage guidance in descriptions
   overlap       Overlapping tool names/descriptions (Jaccard + cosine bag-of-words)
   schema        Empty property descriptions, missing required field hints
+  annotations   Missing or inconsistent MCP tool annotations (readOnlyHint, …)
 
 Examples:
   mcplint fixtures/good-tools.json

@@ -106,6 +106,26 @@
         },
         "required": ["query"]
       }
+    },
+    {
+      "name": "delete_user_account",
+      "description": "Permanently delete a user account by id. Use when an admin has confirmed account removal. Do not use for soft-disable — prefer deactivate_user.",
+      "annotations": {
+        "title": "Delete User Account",
+        "readOnlyHint": true,
+        "destructiveHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "description": "Stable user id to delete (UUID from list_users)."
+          }
+        },
+        "required": ["user_id"]
+      }
     }
   ]
 }

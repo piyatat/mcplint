@@ -1,6 +1,6 @@
 # mcplint
 
-Static **eslint for MCP** — catch vague tool names, missing when-to-use guidance, overlapping tools, and weak input schemas before agents get confused.
+Static **eslint for MCP** — catch vague tool names, missing when-to-use guidance, overlapping tools, weak input schemas, and missing or contradictory tool annotations before agents get confused.
 
 Zero runtime dependencies. Node ≥ 18.
 
@@ -86,6 +86,7 @@ node bin/mcplint.js --json fixtures/bad-tools.json | head
 | `when-to-use` | Missing or tiny descriptions; no “use when / do not use / prefer …” guidance |
 | `overlap` | Tool pairs with high bag-of-words Jaccard + cosine similarity; near-duplicate names |
 | `schema` | Missing `inputSchema`, empty property descriptions, `required` fields without property defs or hints |
+| `annotations` | Missing `annotations` / `readOnlyHint`; name↔hint mismatches (e.g. `delete_*` with `readOnlyHint: true`) |
 
 Findings are ranked by score (severity weight) and include a **fix** suggestion.
 
@@ -97,6 +98,11 @@ Findings are ranked by score (severity weight) and include a **fix** suggestion.
     {
       "name": "list_pull_requests",
       "description": "… Use when … Do not use for …",
+      "annotations": {
+        "title": "List Pull Requests",
+        "readOnlyHint": true,
+        "openWorldHint": true
+      },
       "inputSchema": {
         "type": "object",
         "properties": {

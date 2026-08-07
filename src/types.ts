@@ -26,7 +26,7 @@ export type LoadedManifest = {
 export type Severity = 'info' | 'low' | 'medium' | 'high'
 
 export type Finding = {
-  /** Stable rule id, e.g. vague-verb / when-to-use / overlap / schema. */
+  /** Stable rule id, e.g. vague-verb / when-to-use / overlap / schema / annotations. */
   rule: string
   severity: Severity
   /** Ranking weight (higher = worse). */
