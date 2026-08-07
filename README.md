@@ -84,7 +84,7 @@ node bin/mcplint.js --json fixtures/bad-tools.json | head
 | --- | --- |
 | `vague-verb` | Names/descriptions built from vague verbs (`get`, `handle`, `process`, `manage`, `do`, `stuff`, …) without a specific resource |
 | `when-to-use` | Missing or tiny descriptions; no “use when / do not use / prefer …” guidance |
-| `overlap` | Tool pairs with high bag-of-words Jaccard + cosine similarity; near-duplicate names |
+| `overlap` | Tool pairs with high bag-of-words Jaccard + cosine similarity; exact duplicate names; near-duplicate names |
 | `schema` | Missing `inputSchema`, empty property descriptions, `required` fields without property defs or hints |
 | `annotations` | Missing `annotations` / `readOnlyHint`; name↔hint mismatches (e.g. `delete_*` with `readOnlyHint: true`) |
 

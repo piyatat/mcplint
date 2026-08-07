@@ -1,0 +1,34 @@
+{
+  "tools": [
+    {
+      "name": "list_items",
+      "description": "List items in the workspace. Use when browsing inventory.",
+      "annotations": {
+        "title": "List Items",
+        "readOnlyHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "limit": { "type": "number", "description": "Max rows to return" }
+        }
+      }
+    },
+    {
+      "name": "list_items",
+      "description": "Also list items — same name, different description for the duplicate-name rule.",
+      "annotations": {
+        "title": "List Items Copy",
+        "readOnlyHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "offset": { "type": "number", "description": "Skip this many rows" }
+        }
+      }
+    }
+  ]
+}

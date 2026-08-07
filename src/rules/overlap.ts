@@ -37,6 +37,25 @@ export function checkOverlap(
     }
   }
 
+  // Exact duplicate names (same string twice in one manifest)
+  const byExact = new Map<string, number>()
+  for (const t of tools) {
+    byExact.set(t.name, (byExact.get(t.name) ?? 0) + 1)
+  }
+  for (const [name, count] of byExact) {
+    if (count < 2) continue
+    findings.push({
+      rule: 'overlap',
+      severity: 'high',
+      score: 40,
+      tools: Array.from({ length: count }, () => name),
+      path,
+      message: `Exact duplicate tool name "${name}" appears ${count} times in the same manifest.`,
+      fix: `Remove or rename duplicates so each tool name is unique.`,
+      meta: { kind: 'exact-duplicate', count },
+    })
+  }
+
   // Exact / near-exact name collisions after normalizing separators
   const byNorm = new Map<string, string[]>()
   for (const t of tools) {
@@ -48,6 +67,7 @@ export function checkOverlap(
   for (const [, names] of byNorm) {
     if (names.length < 2) continue
     const unique = [...new Set(names)]
+    // Exact duplicates already reported above; skip when every name is identical.
     if (unique.length < 2) continue
     findings.push({
       rule: 'overlap',
