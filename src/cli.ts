@@ -6,6 +6,7 @@ import { lintAll, mergeResults } from './lint.js'
 import { defaultTargetHint, loadFromPath } from './load.js'
 import { formatJson, formatText, type ReportBundle } from './report.js'
 import { DEFAULT_OVERLAP_THRESHOLD } from './rules/overlap.js'
+import { SEVERITY_RANK, type Severity } from './types.js'
 
 type Args = {
   target: string
@@ -14,6 +15,8 @@ type Args = {
   version: boolean
   color: boolean | 'auto'
   overlapThreshold: number
+  /** Fail when any finding at this severity or worse is present (default: high). */
+  failOn: Severity
 }
 
 function packageVersion(): string {
@@ -30,6 +33,7 @@ function parseArgs(argv: string[]): Args {
     version: false,
     color: 'auto',
     overlapThreshold: DEFAULT_OVERLAP_THRESHOLD,
+    failOn: 'high',
   }
 
   const positionals: string[] = []
@@ -41,7 +45,15 @@ function parseArgs(argv: string[]): Args {
     else if (a === '--json') args.json = true
     else if (a === '--color') args.color = true
     else if (a === '--no-color') args.color = false
-    else if (a === '--overlap-threshold') {
+    else if (a === '--fail-on') {
+      const raw = (argv[++i] ?? '').toLowerCase()
+      if (raw !== 'high' && raw !== 'medium' && raw !== 'low' && raw !== 'info') {
+        throw new Error(
+          `Invalid --fail-on: ${raw || '(empty)'}. Use high, medium, low, or info.\nTry: mcplint --help`,
+        )
+      }
+      args.failOn = raw
+    } else if (a === '--overlap-threshold') {
       const raw = argv[++i]
       const n = Number(raw)
       if (!Number.isFinite(n) || n < 0 || n > 1) {
@@ -79,14 +91,16 @@ Arguments:
 
 Options:
   --json                 Machine-readable JSON report
+  --fail-on LEVEL        Exit 1 when any finding at LEVEL or worse
+                         (high|medium|low|info; default: high)
   --overlap-threshold N  Similarity cutoff for overlap rule (0–1, default ${DEFAULT_OVERLAP_THRESHOLD})
   --color / --no-color   Force ANSI colors on or off
   -h, --help             Show help
   -V, --version          Show version
 
 Exit codes:
-  0  No high-severity findings
-  1  One or more high-severity findings (or usage error)
+  0  No findings at --fail-on severity or worse
+  1  One or more findings at the fail threshold (or usage error)
 
 Rules:
   vague-verb    Vague verbs (get/handle/process/manage/do/stuff…) without specificity
@@ -99,6 +113,7 @@ Examples:
   mcplint fixtures/good-tools.json
   mcplint fixtures/bad-tools.json
   mcplint --json fixtures/bad-tools.json
+  mcplint --fail-on medium fixtures/bad-tools.json
   mcplint ./my-mcp-server
 `.trimStart()
 }
@@ -158,7 +173,9 @@ async function main(): Promise<number> {
     console.log(formatText(bundle, wantColor(args.color, false)))
   }
 
-  return merged.highCount > 0 ? 1 : 0
+  const threshold = SEVERITY_RANK[args.failOn]
+  const failCount = merged.findings.filter((f) => SEVERITY_RANK[f.severity] >= threshold).length
+  return failCount > 0 ? 1 : 0
 }
 
 main()
