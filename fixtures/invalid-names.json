@@ -1,0 +1,23 @@
+{
+  "tools": [
+    {
+      "name": "getUser",
+      "description": "Use when you need to fetch a user record by id. Do not use for bulk exports — prefer list_users instead.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "description": "User id to fetch." }
+        },
+        "required": ["id"]
+      }
+    },
+    {
+      "name": "list items",
+      "description": "Use when you need all items in a workspace. Do not use for single-item lookup — prefer get_item instead.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  ]
+}

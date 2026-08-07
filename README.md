@@ -83,6 +83,7 @@ node bin/mcplint.js --json fixtures/bad-tools.json | head
 
 | Rule | What it catches |
 | --- | --- |
+| `naming` | Invalid MCP tool names (camelCase, spaces, dots, or characters outside `[a-z0-9_-]`) |
 | `vague-verb` | Names/descriptions built from vague verbs (`get`, `handle`, `process`, `manage`, `do`, `stuff`, …) without a specific resource |
 | `when-to-use` | Missing or tiny descriptions; no “use when / do not use / prefer …” guidance |
 | `overlap` | Tool pairs with high bag-of-words Jaccard + cosine similarity; exact duplicate names; near-duplicate names; exact duplicate descriptions |

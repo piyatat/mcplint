@@ -103,6 +103,7 @@ Exit codes:
   1  One or more findings at the fail threshold (or usage error)
 
 Rules:
+  naming        Invalid MCP tool names (camelCase, spaces, dots, bad chars)
   vague-verb    Vague verbs (get/handle/process/manage/do/stuff…) without specificity
   when-to-use   Missing usage guidance in descriptions
   overlap       Overlapping tool names/descriptions (Jaccard + cosine bag-of-words)
@@ -117,6 +118,7 @@ Examples:
   mcplint fixtures/duplicate-descriptions.json
   mcplint fixtures/case-duplicate-names.json
   mcplint fixtures/empty-name-tools.json
+  mcplint fixtures/invalid-names.json
   mcplint ./my-mcp-server
 `.trimStart()
 }
