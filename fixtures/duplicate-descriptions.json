@@ -1,0 +1,30 @@
+{
+  "tools": [
+    {
+      "name": "fetch_issue",
+      "description": "Load a GitHub issue by number and return title, body, and labels. Use when you need issue details. Do not use for pull request diffs.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "owner": { "type": "string", "description": "Repository owner login." },
+          "repo": { "type": "string", "description": "Repository name." },
+          "number": { "type": "number", "description": "Issue number to fetch." }
+        },
+        "required": ["owner", "repo", "number"]
+      }
+    },
+    {
+      "name": "get_issue",
+      "description": "Load a GitHub issue by number and return title, body, and labels. Use when you need issue details. Do not use for pull request diffs.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "owner": { "type": "string", "description": "Repository owner login." },
+          "repo": { "type": "string", "description": "Repository name." },
+          "number": { "type": "number", "description": "Issue number to fetch." }
+        },
+        "required": ["owner", "repo", "number"]
+      }
+    }
+  ]
+}

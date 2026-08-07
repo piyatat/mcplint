@@ -81,5 +81,32 @@ export function checkOverlap(
     })
   }
 
+  // Exact duplicate descriptions (after trim) — agents cannot tell tools apart
+  const byDesc = new Map<string, string[]>()
+  for (const t of tools) {
+    const desc = (t.description ?? '').trim()
+    if (!desc) continue
+    const list = byDesc.get(desc) ?? []
+    list.push(t.name)
+    byDesc.set(desc, list)
+  }
+  for (const [desc, names] of byDesc) {
+    if (names.length < 2) continue
+    const unique = [...new Set(names)]
+    findings.push({
+      rule: 'overlap',
+      severity: 'high',
+      score: 38,
+      tools: unique,
+      path,
+      message: `Exact duplicate description shared by ${unique.map((n) => `"${n}"`).join(', ')}.`,
+      fix: `Give each tool a distinct description with exclusive when-to-use guidance.`,
+      meta: {
+        kind: 'exact-duplicate-description',
+        descriptionPreview: desc.length > 80 ? `${desc.slice(0, 79)}…` : desc,
+      },
+    })
+  }
+
   return findings
 }
