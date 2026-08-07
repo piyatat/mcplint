@@ -1,0 +1,36 @@
+{
+  "tools": [
+    {
+      "name": "GetUser",
+      "description": "Fetch a user record by id. Use when you need profile details for a known user id.",
+      "annotations": {
+        "title": "Get User",
+        "readOnlyHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "description": "User id to fetch" }
+        },
+        "required": ["id"]
+      }
+    },
+    {
+      "name": "getUser",
+      "description": "Same user lookup with different casing — case-insensitive duplicate.",
+      "annotations": {
+        "title": "Get User Alt",
+        "readOnlyHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "userId": { "type": "string", "description": "User id to fetch" }
+        },
+        "required": ["userId"]
+      }
+    }
+  ]
+}

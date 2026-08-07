@@ -115,6 +115,7 @@ Examples:
   mcplint --json fixtures/bad-tools.json
   mcplint --fail-on medium fixtures/bad-tools.json
   mcplint fixtures/duplicate-descriptions.json
+  mcplint fixtures/case-duplicate-names.json
   mcplint ./my-mcp-server
 `.trimStart()
 }

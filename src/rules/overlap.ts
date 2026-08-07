@@ -56,6 +56,30 @@ export function checkOverlap(
     })
   }
 
+  // Case-insensitive duplicate names (GetUser vs getUser)
+  const byLower = new Map<string, string[]>()
+  for (const t of tools) {
+    const key = t.name.toLowerCase()
+    const list = byLower.get(key) ?? []
+    list.push(t.name)
+    byLower.set(key, list)
+  }
+  for (const [, names] of byLower) {
+    if (names.length < 2) continue
+    const unique = [...new Set(names)]
+    if (unique.length < 2) continue
+    findings.push({
+      rule: 'overlap',
+      severity: 'high',
+      score: 36,
+      tools: unique,
+      path,
+      message: `Case-insensitive duplicate tool names: ${unique.map((n) => `"${n}"`).join(', ')}.`,
+      fix: `Pick one canonical casing and remove or rename the others.`,
+      meta: { kind: 'case-insensitive-duplicate' },
+    })
+  }
+
   // Exact / near-exact name collisions after normalizing separators
   const byNorm = new Map<string, string[]>()
   for (const t of tools) {
