@@ -33,6 +33,21 @@ export function checkSchema(tools: McpTool[], path: string): Finding[] {
   const findings: Finding[] = []
 
   for (const tool of tools) {
+    const name = typeof tool.name === 'string' ? tool.name : ''
+    if (!name.trim()) {
+      findings.push({
+        rule: 'schema',
+        severity: 'high',
+        score: 45,
+        tool: name || '(empty)',
+        path,
+        message: `Tool has an empty or whitespace-only name.`,
+        fix: `Give every tool a unique snake_case name that states the action and resource (e.g. list_pull_requests).`,
+        meta: { kind: 'empty-name' },
+      })
+      continue
+    }
+
     const schema = tool.inputSchema
 
     if (!schema) {

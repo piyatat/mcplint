@@ -13,10 +13,10 @@ function asTool(raw: unknown, index: number, path: string): McpTool {
     throw new Error(`${path}: tool #${index} is not an object`)
   }
   const name = raw.name
-  if (typeof name !== 'string' || !name.trim()) {
-    throw new Error(`${path}: tool #${index} is missing a non-empty string "name"`)
+  if (typeof name !== 'string') {
+    throw new Error(`${path}: tool #${index} is missing a string "name"`)
   }
-  const tool: McpTool = { name: name.trim() }
+  const tool: McpTool = { name }
   if (typeof raw.description === 'string') tool.description = raw.description
   if (isRecord(raw.inputSchema)) tool.inputSchema = raw.inputSchema as McpTool['inputSchema']
   // Common alias used in some fixtures / SDKs

@@ -106,7 +106,7 @@ Rules:
   vague-verb    Vague verbs (get/handle/process/manage/do/stuff…) without specificity
   when-to-use   Missing usage guidance in descriptions
   overlap       Overlapping tool names/descriptions (Jaccard + cosine bag-of-words)
-  schema        Empty property descriptions, missing required field hints
+  schema        Empty property descriptions, missing required field hints, empty tool names
   annotations   Missing or inconsistent MCP tool annotations (readOnlyHint, …)
 
 Examples:
@@ -116,6 +116,7 @@ Examples:
   mcplint --fail-on medium fixtures/bad-tools.json
   mcplint fixtures/duplicate-descriptions.json
   mcplint fixtures/case-duplicate-names.json
+  mcplint fixtures/empty-name-tools.json
   mcplint ./my-mcp-server
 `.trimStart()
 }

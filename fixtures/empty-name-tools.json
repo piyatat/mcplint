@@ -1,0 +1,30 @@
+{
+  "tools": [
+    {
+      "name": "",
+      "description": "Missing a tool name entirely.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "   ",
+      "description": "Whitespace-only name should fail too.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "list_items",
+      "description": "Valid tool for contrast.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "owner": { "type": "string", "description": "Repo owner slug." }
+        }
+      }
+    }
+  ]
+}
