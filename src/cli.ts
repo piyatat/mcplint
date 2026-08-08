@@ -2,7 +2,7 @@
 import { readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { lintAll, mergeResults } from './lint.js'
+import { lintAll, mergeResults, ALL_RULES } from './lint.js'
 import { defaultTargetHint, loadFromPath } from './load.js'
 import { formatJson, formatText, type ReportBundle } from './report.js'
 import { DEFAULT_OVERLAP_THRESHOLD } from './rules/overlap.js'
@@ -17,6 +17,8 @@ type Args = {
   overlapThreshold: number
   /** Fail when any finding at this severity or worse is present (default: high). */
   failOn: Severity
+  /** Run only these rule ids (comma-separated). */
+  only: string[]
 }
 
 function packageVersion(): string {
@@ -34,6 +36,7 @@ function parseArgs(argv: string[]): Args {
     color: 'auto',
     overlapThreshold: DEFAULT_OVERLAP_THRESHOLD,
     failOn: 'high',
+    only: [],
   }
 
   const positionals: string[] = []
@@ -53,6 +56,21 @@ function parseArgs(argv: string[]): Args {
         )
       }
       args.failOn = raw
+    } else if (a === '--only') {
+      const raw = argv[++i] ?? ''
+      if (!raw.trim()) {
+        throw new Error(`Missing value for --only.\nTry: mcplint --help`)
+      }
+      const ids = raw.split(',').map((s) => s.trim()).filter(Boolean)
+      const valid = new Set<string>(ALL_RULES)
+      for (const id of ids) {
+        if (!valid.has(id)) {
+          throw new Error(
+            `Invalid --only rule: ${id}. Use: ${ALL_RULES.join(', ')}.\nTry: mcplint --help`,
+          )
+        }
+      }
+      args.only = ids
     } else if (a === '--overlap-threshold') {
       const raw = argv[++i]
       const n = Number(raw)
@@ -93,6 +111,8 @@ Options:
   --json                 Machine-readable JSON report
   --fail-on LEVEL        Exit 1 when any finding at LEVEL or worse
                          (high|medium|low|info; default: high)
+  --only RULES           Run only these rules (comma-separated:
+                         naming, vague-verb, when-to-use, overlap, schema, annotations)
   --overlap-threshold N  Similarity cutoff for overlap rule (0–1, default ${DEFAULT_OVERLAP_THRESHOLD})
   --color / --no-color   Force ANSI colors on or off
   -h, --help             Show help
@@ -119,6 +139,7 @@ Examples:
   mcplint fixtures/case-duplicate-names.json
   mcplint fixtures/empty-name-tools.json
   mcplint fixtures/invalid-names.json
+  mcplint --only naming fixtures/bad-tools.json
   mcplint ./my-mcp-server
 `.trimStart()
 }
@@ -159,7 +180,10 @@ async function main(): Promise<number> {
     return 1
   }
 
-  const results = lintAll(manifests, { overlapThreshold: args.overlapThreshold })
+  const results = lintAll(manifests, {
+    overlapThreshold: args.overlapThreshold,
+    only: args.only.length ? args.only : undefined,
+  })
   const merged = mergeResults(results)
 
   const bundle: ReportBundle = {

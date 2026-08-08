@@ -15,24 +15,40 @@ import {
 
 export type LintOptions = {
   overlapThreshold?: number
+  /** When set, run only these rule ids (e.g. naming, schema). */
+  only?: string[]
 }
+
+const ALL_RULES = [
+  'naming',
+  'vague-verb',
+  'when-to-use',
+  'overlap',
+  'schema',
+  'annotations',
+] as const
 
 export function lintTools(
   tools: LoadedManifest['tools'],
   path: string,
   options: LintOptions = {},
 ): Finding[] {
+  const only = options.only?.length ? new Set(options.only) : null
+  const run = (rule: string) => !only || only.has(rule)
+
   const findings: Finding[] = [
-    ...checkNaming(tools, path),
-    ...checkVagueVerbs(tools, path),
-    ...checkWhenToUse(tools, path),
-    ...checkOverlap(tools, path, options.overlapThreshold),
-    ...checkSchema(tools, path),
-    ...checkAnnotations(tools, path),
+    ...(run('naming') ? checkNaming(tools, path) : []),
+    ...(run('vague-verb') ? checkVagueVerbs(tools, path) : []),
+    ...(run('when-to-use') ? checkWhenToUse(tools, path) : []),
+    ...(run('overlap') ? checkOverlap(tools, path, options.overlapThreshold) : []),
+    ...(run('schema') ? checkSchema(tools, path) : []),
+    ...(run('annotations') ? checkAnnotations(tools, path) : []),
   ]
   findings.sort(compareFindings)
   return findings
 }
+
+export { ALL_RULES }
 
 export function lintManifest(manifest: LoadedManifest, options: LintOptions = {}): LintResult {
   const findings = lintTools(manifest.tools, manifest.path, options)
