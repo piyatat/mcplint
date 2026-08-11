@@ -17,6 +17,8 @@ type Args = {
   overlapThreshold: number
   /** Fail when any finding at this severity or worse is present (default: high). */
   failOn: Severity
+  /** When set, keep only findings with this exact severity. */
+  severity: Severity | null
   /** Run only these rule ids (comma-separated). */
   only: string[]
 }
@@ -36,6 +38,7 @@ function parseArgs(argv: string[]): Args {
     color: 'auto',
     overlapThreshold: DEFAULT_OVERLAP_THRESHOLD,
     failOn: 'high',
+    severity: null,
     only: [],
   }
 
@@ -56,6 +59,14 @@ function parseArgs(argv: string[]): Args {
         )
       }
       args.failOn = raw
+    } else if (a === '--severity') {
+      const raw = (argv[++i] ?? '').toLowerCase()
+      if (raw !== 'high' && raw !== 'medium' && raw !== 'low' && raw !== 'info') {
+        throw new Error(
+          `Invalid --severity: ${raw || '(empty)'}. Use high, medium, low, or info.\nTry: mcplint --help`,
+        )
+      }
+      args.severity = raw
     } else if (a === '--only') {
       const raw = argv[++i] ?? ''
       if (!raw.trim()) {
@@ -111,6 +122,8 @@ Options:
   --json                 Machine-readable JSON report
   --fail-on LEVEL        Exit 1 when any finding at LEVEL or worse
                          (high|medium|low|info; default: high)
+  --severity LEVEL        Show only findings at this severity
+                         (high|medium|low|info)
   --only RULES           Run only these rules (comma-separated:
                          naming, vague-verb, when-to-use, overlap, schema, annotations)
   --overlap-threshold N  Similarity cutoff for overlap rule (0–1, default ${DEFAULT_OVERLAP_THRESHOLD})
@@ -135,6 +148,7 @@ Examples:
   mcplint fixtures/bad-tools.json
   mcplint --json fixtures/bad-tools.json
   mcplint --fail-on medium fixtures/bad-tools.json
+  mcplint --severity medium fixtures/bad-tools.json
   mcplint fixtures/duplicate-descriptions.json
   mcplint fixtures/case-duplicate-names.json
   mcplint fixtures/empty-name-tools.json
@@ -185,14 +199,23 @@ async function main(): Promise<number> {
     only: args.only.length ? args.only : undefined,
   })
   const merged = mergeResults(results)
+  const findings = args.severity
+    ? merged.findings.filter((f) => f.severity === args.severity)
+    : merged.findings
+  const highCount = findings.filter((f) => f.severity === 'high').length
+  const summary = args.severity
+    ? findings.length === 0
+      ? `No ${args.severity} findings — ${merged.toolCount} tool(s) scanned.`
+      : `${findings.length} ${args.severity} finding(s) across ${merged.toolCount} tool(s).`
+    : merged.summary
 
   const bundle: ReportBundle = {
     results,
-    findings: merged.findings,
+    findings,
     toolCount: merged.toolCount,
-    highCount: merged.highCount,
-    clean: merged.clean,
-    summary: merged.summary,
+    highCount,
+    clean: findings.length === 0,
+    summary,
     version: packageVersion(),
   }
 
@@ -203,7 +226,7 @@ async function main(): Promise<number> {
   }
 
   const threshold = SEVERITY_RANK[args.failOn]
-  const failCount = merged.findings.filter((f) => SEVERITY_RANK[f.severity] >= threshold).length
+  const failCount = findings.filter((f) => SEVERITY_RANK[f.severity] >= threshold).length
   return failCount > 0 ? 1 : 0
 }
 

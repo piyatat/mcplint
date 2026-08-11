@@ -51,6 +51,7 @@ If omitted, mcplint looks for `tools.json` or `fixtures/` under the current dire
 | --- | --- |
 | `--json` | Machine-readable report |
 | `--fail-on LEVEL` | Exit 1 when any finding is at `LEVEL` or worse (`high`\|`medium`\|`low`\|`info`; default `high`) |
+| `--severity LEVEL` | Show only findings at this severity (`high`\|`medium`\|`low`\|`info`) |
 | `--overlap-threshold N` | Similarity cutoff for overlap (0–1, default `0.48`) |
 | `--color` / `--no-color` | Force ANSI colors |
 | `-h`, `--help` | Help |
