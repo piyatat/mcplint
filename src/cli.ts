@@ -13,6 +13,7 @@ type Args = {
   json: boolean
   help: boolean
   version: boolean
+  listRules: boolean
   color: boolean | 'auto'
   overlapThreshold: number
   /** Fail when any finding at this severity or worse is present (default: high). */
@@ -21,6 +22,15 @@ type Args = {
   severity: Severity | null
   /** Run only these rule ids (comma-separated). */
   only: string[]
+}
+
+const RULE_DESCRIPTIONS: Record<(typeof ALL_RULES)[number], string> = {
+  naming: 'Invalid MCP tool names (camelCase, spaces, dots, bad chars)',
+  'vague-verb': 'Vague verbs (get/handle/process/manage/do/stuff…) without specificity',
+  'when-to-use': 'Missing usage guidance in descriptions',
+  overlap: 'Overlapping tool names/descriptions (Jaccard + cosine bag-of-words)',
+  schema: 'Empty property descriptions, missing required field hints, empty tool names',
+  annotations: 'Missing or inconsistent MCP tool annotations (readOnlyHint, …)',
 }
 
 function packageVersion(): string {
@@ -35,6 +45,7 @@ function parseArgs(argv: string[]): Args {
     json: false,
     help: false,
     version: false,
+    listRules: false,
     color: 'auto',
     overlapThreshold: DEFAULT_OVERLAP_THRESHOLD,
     failOn: 'high',
@@ -48,25 +59,48 @@ function parseArgs(argv: string[]): Args {
     const a = argv[i]!
     if (a === '--help' || a === '-h') args.help = true
     else if (a === '--version' || a === '-V') args.version = true
+    else if (a === '--list-rules') args.listRules = true
     else if (a === '--json') args.json = true
     else if (a === '--color') args.color = true
     else if (a === '--no-color') args.color = false
     else if (a === '--fail-on') {
       const raw = (argv[++i] ?? '').toLowerCase()
-      if (raw !== 'high' && raw !== 'medium' && raw !== 'low' && raw !== 'info') {
+      const normalized =
+        raw === 'warning' || raw === 'warn'
+          ? 'medium'
+          : raw === 'error'
+            ? 'high'
+            : raw
+      if (
+        normalized !== 'high' &&
+        normalized !== 'medium' &&
+        normalized !== 'low' &&
+        normalized !== 'info'
+      ) {
         throw new Error(
-          `Invalid --fail-on: ${raw || '(empty)'}. Use high, medium, low, or info.\nTry: mcplint --help`,
+          `Invalid --fail-on: ${raw || '(empty)'}. Use high|error, medium|warning|warn, low, or info.\nTry: mcplint --help`,
         )
       }
-      args.failOn = raw
+      args.failOn = normalized
     } else if (a === '--severity') {
       const raw = (argv[++i] ?? '').toLowerCase()
-      if (raw !== 'high' && raw !== 'medium' && raw !== 'low' && raw !== 'info') {
+      const normalized =
+        raw === 'warning' || raw === 'warn'
+          ? 'medium'
+          : raw === 'error'
+            ? 'high'
+            : raw
+      if (
+        normalized !== 'high' &&
+        normalized !== 'medium' &&
+        normalized !== 'low' &&
+        normalized !== 'info'
+      ) {
         throw new Error(
-          `Invalid --severity: ${raw || '(empty)'}. Use high, medium, low, or info.\nTry: mcplint --help`,
+          `Invalid --severity: ${raw || '(empty)'}. Use high|error, medium|warning|warn, low, or info.\nTry: mcplint --help`,
         )
       }
-      args.severity = raw
+      args.severity = normalized
     } else if (a === '--only') {
       const raw = argv[++i] ?? ''
       if (!raw.trim()) {
@@ -120,10 +154,11 @@ Arguments:
 
 Options:
   --json                 Machine-readable JSON report
+  --list-rules           Print rule ids and descriptions, then exit
   --fail-on LEVEL        Exit 1 when any finding at LEVEL or worse
-                         (high|medium|low|info; default: high)
+                         (high|error, medium|warning|warn, low, info; default: high)
   --severity LEVEL        Show only findings at this severity
-                         (high|medium|low|info)
+                         (high|error, medium|warning|warn, low, info)
   --only RULES           Run only these rules (comma-separated:
                          naming, vague-verb, when-to-use, overlap, schema, annotations)
   --overlap-threshold N  Similarity cutoff for overlap rule (0–1, default ${DEFAULT_OVERLAP_THRESHOLD})
@@ -133,7 +168,8 @@ Options:
 
 Exit codes:
   0  No findings at --fail-on severity or worse
-  1  One or more findings at the fail threshold (or usage error)
+  1  One or more findings at the fail threshold
+  2  Usage / I/O error
 
 Rules:
   naming        Invalid MCP tool names (camelCase, spaces, dots, bad chars)
@@ -147,7 +183,8 @@ Examples:
   mcplint fixtures/good-tools.json
   mcplint fixtures/bad-tools.json
   mcplint --json fixtures/bad-tools.json
-  mcplint --fail-on medium fixtures/bad-tools.json
+  mcplint --fail-on warning fixtures/bad-tools.json
+  mcplint --list-rules
   mcplint --severity medium fixtures/bad-tools.json
   mcplint fixtures/duplicate-descriptions.json
   mcplint fixtures/case-duplicate-names.json
@@ -165,13 +202,24 @@ function wantColor(flag: boolean | 'auto', json: boolean): boolean {
   return Boolean(process.stdout.isTTY) && !process.env.NO_COLOR
 }
 
+function printRules(asJson: boolean): void {
+  const rules = ALL_RULES.map((id) => ({ id, description: RULE_DESCRIPTIONS[id] }))
+  if (asJson) {
+    console.log(JSON.stringify({ rules, version: packageVersion() }, null, 2))
+    return
+  }
+  for (const rule of rules) {
+    console.log(`${rule.id.padEnd(12)} ${rule.description}`)
+  }
+}
+
 async function main(): Promise<number> {
   let args: Args
   try {
     args = parseArgs(process.argv.slice(2))
   } catch (err) {
     console.error(err instanceof Error ? err.message : String(err))
-    return 1
+    return 2
   }
 
   if (args.help) {
@@ -180,6 +228,10 @@ async function main(): Promise<number> {
   }
   if (args.version) {
     console.log(packageVersion())
+    return 0
+  }
+  if (args.listRules) {
+    printRules(args.json)
     return 0
   }
 
@@ -191,7 +243,7 @@ async function main(): Promise<number> {
   } catch (err) {
     console.error(err instanceof Error ? err.message : String(err))
     console.error('Try: mcplint --help')
-    return 1
+    return 2
   }
 
   const results = lintAll(manifests, {
